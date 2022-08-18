@@ -54,3 +54,10 @@ RUN ln -s /usr/bin/batcat /usr/bin/bat
 RUN mkdir -p ~/.local/bin
 COPY init_user.sh ~/.local/bin
 
+# Chad
+COPY chad.bf /var/local/chad.bf
+COPY chadify.bash /var/local/chadify.bash
+RUN echo 'bash /var/local/chadify.bash' >> $HOME/.bashrc
+RUN echo 'bash /var/local/chadify.bash'  >> $HOME/.zshrc
+RUN apt-get install --yes bf
+
