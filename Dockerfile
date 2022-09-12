@@ -25,23 +25,6 @@ RUN git clone https://github.com/powerline/fonts.git --depth=1
 RUN sh fonts/install.sh
 RUN rm -rf fonts
 
-# Oh-My-Zsh
-RUN apt-get install zsh -y
-RUN git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-RUN chsh -s $(which zsh)
-# CUSTOMIZE ZSH
-RUN git clone https://github.com/bhilburn/powerlevel9k.git ~/.oh-my-zsh/themes/powerlevel9k
-RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel9k\/powerlevel9k"/g' ~/.zshrc
-RUN echo 'export TERM="xterm-256color"' | cat - ~/.zshrc > /tmp/out && mv /tmp/out ~/.zshrc
-
-# starship
-RUN curl -sS https://starship.rs/install.sh | sh -s -- --yes
-RUN echo '' >> $HOME/.bashrc
-RUN echo '# Start the starship prompt.' >> $HOME/.bashrc
-RUN echo 'eval "$(starship init bash)"' >> $HOME/.bashrc
-RUN echo 'eval "$(starship init zsh)"'  >> $HOME/.zshrc
-
 # nala
 RUN echo "deb https://deb.volian.org/volian/ scar main" | tee /etc/apt/sources.list.d/volian-archive-scar-unstable.list
 RUN wget -qO - https://deb.volian.org/volian/scar.key | tee /etc/apt/trusted.gpg.d/volian-archive-scar-unstable.gpg > /dev/null
@@ -51,8 +34,9 @@ RUN apt-get update && apt-get install --yes nala
 RUN ln -s /usr/bin/batcat /usr/bin/bat
 
 # Add user script
-RUN mkdir -p ~/.local/bin
-COPY init_user.sh ~/.local/bin
+RUN mkdir -p /root/.local/bin
+COPY util/init_user.sh /root/.local/bin
+COPY util/create_user_ubuntu.22.04.sh /root/.local/bin
 
 # Chad
 COPY chad.bf /var/local/chad.bf
@@ -61,3 +45,20 @@ RUN echo 'bash /var/local/chadify.bash' >> $HOME/.bashrc
 RUN echo 'bash /var/local/chadify.bash'  >> $HOME/.zshrc
 RUN apt-get install --yes bf
 
+# Install Starship.rs for the root user
+RUN mkdir -p /root/bin
+RUN curl -sS https://starship.rs/install.sh | sh -s -- --bin-dir $HOME/bin --yes > /dev/null
+
+RUN sh /root/.local/bin/create_user_ubuntu.22.04.sh dev
+USER dev
+# USER is not defined by default.
+ENV USER=dev
+WORKDIR /home/dev/
+RUN mkdir -p /home/dev/Development/chadacity
+COPY . /home/dev/Development/chadacity
+# Before this point ~/.zshrc does not exist
+RUN echo 'export SHELL=$(which zsh)' > /home/dev/.zshrc
+RUN SHELL=$(which zsh) zsh /home/dev/Development/chadacity/setup_ubuntu.22.04.zsh
+RUN rm -rf ~/Development
+
+ENTRYPOINT zsh

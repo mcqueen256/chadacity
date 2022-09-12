@@ -39,10 +39,9 @@ plugins=( \
   ripgrep \
   rsync \
   rust \
-  ssh-agent \
   sudo \
   systemd \
-  tmux \
+  zsh-syntax-highlighting \
 )
 
 bindkey '\e[A' history-beginning-search-backward
@@ -80,6 +79,7 @@ eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh.json)"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias l="exa --icons --long --all --git"
 if brainfuck --version 2> /dev/null; then; alias bf=brainfuck; fi;
+alias chad="bf ~/Development/chadacity/chad.bf"
 
 
 # history setup
