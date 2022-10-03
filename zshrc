@@ -44,8 +44,18 @@ plugins=( \
   zsh-syntax-highlighting \
 )
 
-bindkey '\e[A' history-beginning-search-backward
-bindkey '\e[B' history-beginning-search-forward
+for direction (up down) {
+  autoload $direction-line-or-beginning-search
+  zle -N $direction-line-or-beginning-search
+  key=$terminfo[kcu$direction[1]1]
+  for key ($key ${key/O/[})
+    bindkey $key $direction-line-or-beginning-search
+}
+
+for direction (up down) {
+  autoload $direction-line-or-beginning-search
+  zle -N $direction-line-or-{history,beginning-search}
+}
 
 source $ZSH/oh-my-zsh.sh
 source "$HOME/.cargo/env"
@@ -78,7 +88,7 @@ eval "$(oh-my-posh init zsh --config ~/.config/oh-my-posh.json)"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias l="exa --icons --long --all --git"
-if brainfuck --version 2> /dev/null; then; alias bf=brainfuck; fi;
+if brainfuck --version &> /dev/null; then; alias bf=brainfuck; fi;
 alias chad="bf ~/Development/chadacity/chad.bf"
 
 
